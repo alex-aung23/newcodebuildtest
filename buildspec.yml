@@ -2,14 +2,12 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo Build started on `date` 
-      - mvn test 
-  post_build: 
-    commands: 
-      - echo Build completed on `date` 
-      - mvn package
-artifacts: 
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - cd src && make package S3_BUCKET=$S3_ARTIFACT_BUCKET S3_PREFIX="packaged/commit-$COMMIT_HASH"
+artifacts:
+  base-directory: src
   files:
-    - appspec.yml
-    - target/Spring3HibernateApp.war
-  discard-paths: yes
+  - resources.params.dev.json
+  - resources.params.uat.json
+  - resources.params.prod.json
+  - resources.out.yml
